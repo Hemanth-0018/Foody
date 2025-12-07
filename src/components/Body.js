@@ -7,7 +7,6 @@ const Body=()=>{
     const [listOfRes,setListOfRes]=useState();
     const [filteredres,setFilteredres]=useState();
     const [searchTxt,setSearchTxt]=useState("");
-
     //Normal Js variable
     //intro of useEffect hook 
     //after rendering the body component call useEffect 
