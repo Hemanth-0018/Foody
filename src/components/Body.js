@@ -1,4 +1,5 @@
 import RestaurantCard from "./RestaurantCard";
+import { Link, useParams } from "react-router-dom";
 import {useState,useEffect} from "react";
 import ShimmerUi from "./Shimmer";
 const Body=()=>{
@@ -7,6 +8,7 @@ const Body=()=>{
     const [listOfRes,setListOfRes]=useState();
     const [filteredres,setFilteredres]=useState();
     const [searchTxt,setSearchTxt]=useState("");
+    const {resId}=useParams();
     //Normal Js variable
     //intro of useEffect hook 
     //after rendering the body component call useEffect 
@@ -14,7 +16,7 @@ const Body=()=>{
        fetchedData();
     },[])
     const fetchedData=async()=>{
-        const data = await fetch("https://www.swiggy.com/dapi/restaurants/list/v5?lat=17.7072867&lng=83.30009470000002&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING");
+        const data = await fetch("https://foodfire.onrender.com/api/restaurants?lat=21.1702401&lng=72.83106070000001&page_type=DESKTOP_WEB_LISTING");
         const json = await data.json();
         console.log(json);
         const cardData = json?.data?.cards?.find(
@@ -48,10 +50,10 @@ const Body=()=>{
                
                 {
                     filteredres?.map((res)=>(
-                        <RestaurantCard
-                            key={res.info.id}
+                        <Link to={"restaurant/"+res.info.id} key={res.info.id} className="ReS"> <RestaurantCard
                             resData={res.info}
-                        />
+                        /></Link>
+                       
                     ))
                 }
             </div>

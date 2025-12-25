@@ -8,7 +8,6 @@ const RestaurantCard=(props)=>{
         //     backgroundColor:"#f0f0f0"
         // }}
         >
-            
             <img src={imgUrl} className="res-logo"/>
             <h2 className="restitle">{resData.name}</h2>
             <h4 className="cuisines">{resData.cuisines.join(", ")}</h4>
