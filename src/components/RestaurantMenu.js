@@ -1,41 +1,45 @@
-import { useEffect,useState} from "react";
 import Shimmer from "./Shimmer";
 import { useParams } from "react-router-dom";
-import { MENU } from "../utils/contants";
-const restaurantMenu=()=>{
-    const [menu,setMenu]=useState(null);
-    const {resId}=useParams();
-    useEffect(()=>{
-        fetchMenu();
-    },[resId])
-    const fetchMenu=async()=>{
-        const data = await fetch(MENU+resId);
-        const json = await data.json();
-        console.log(json);
-        setMenu(json);
-        
-    }
-    if(menu===null) return <Shimmer/>;
-    const resInfo = menu?.data?.cards[2]?.card?.card?.info || menu?.data?.cards[0]?.card?.card?.info;
+import useRestaurantMenu from "../utils/useRestaurantMenu";
+import RestaurantItems from "./restaurantItems"; 
+import { useState } from "react";
 
-    const { name, cuisines, costForTwoMessage } = resInfo || {};
-    const categories=menu?.data?.cards.find(x=>x.groupedCard)?.groupedCard?.cardGroupMap?.REGULAR?.cards;
-    const itemCategory = categories?.find(x=>x.card?.card?.itemCards);
-    const itemCards=itemCategory?.card?.card?.itemCards||[];
+const RestaurantMenu = () => { 
+    const { resId } = useParams();
+    const menu = useRestaurantMenu(resId);
+    
+    // Controlled State: null means all closed, 0 means first section open
+    const [showIndex, setShowIndex] = useState(0); 
+
+    if (menu === null) return <Shimmer />;
+
+    // Extracting the menu categories from the complex API structure
+    const groupeditems = menu?.data?.cards?.find(x => x.groupedCard?.cardGroupMap?.REGULAR?.cards);
+    const resD = groupeditems?.groupedCard?.cardGroupMap?.REGULAR?.cards;
+    
+    const itemsCategories = resD?.filter(
+        (c) => c?.card?.card?.['@type'] === "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
+    );
+
     return (
-        <div>
-            <h1>{name}</h1>
-            <p>{cuisines.join(", ")} - {costForTwoMessage}</p>
-            <h2>Menu</h2>
-            <ul>
-                {itemCards.map((item)=>(
-                    <li key={item.card.info.id}>
-                        {item.card.info.name} - Rs. {item.card.info.price/100||item.card.info.defaultPrice / 100}
-                    </li>
+        <div className="text-center bg-gray-50 min-h-screen pb-10">
+            <h1 className="font-black my-8 text-3xl text-gray-800">Menu</h1>
+            
+            <div className="flex flex-col items-center">
+                {/* FIX: We must MAP over categories to render multiple accordion bars */}
+                {itemsCategories?.map((category, index) => (
+                    <RestaurantItems 
+                        key={category?.card?.card?.title} 
+                        data={category?.card?.card}
+                        // If current index matches showIndex, the accordion is open
+                        showItems={index === showIndex}
+                        // Toggle logic: if clicked again, it closes (sets to null)
+                        setShowIndex={() => setShowIndex(index === showIndex ? null : index)}
+                    />
                 ))}
-            </ul>
+            </div>
         </div>
-    )
-}
+    );
+};
 
-export default restaurantMenu;
+export default RestaurantMenu;
